@@ -119,13 +119,14 @@
         radial-gradient(circle at 85% 15%, rgba(6, 182, 212, 0.08) 0%, transparent 35%);
       z-index: -1;
       pointer-events: none;
-      animation: orbDrift 30s ease-in-out infinite alternate;
+      animation: orbDrift 45s ease-in-out infinite alternate;
     }
 
     @keyframes orbDrift {
+      /* Drift amplitudo dikurangi, periode lebih panjang — kesan "ambient" */
       0%   { transform: translate(0, 0) scale(1); }
-      50%  { transform: translate(30px, -20px) scale(1.1); }
-      100% { transform: translate(-20px, 30px) scale(0.95); }
+      50%  { transform: translate(12px, -8px) scale(1.04); }
+      100% { transform: translate(-8px, 12px) scale(0.98); }
     }
 
     h1, h2, h3, h4, h5, h6 {
@@ -185,12 +186,18 @@
       width: 10px; height: 10px;
       border-radius: 50%;
       background: var(--gradient-brand);
-      box-shadow: 0 0 12px var(--brand-cyan);
-      animation: pulse 2s ease-in-out infinite;
+      box-shadow: 0 0 10px var(--brand-cyan);
+      /* Pulse halus — 3.5s, scale max 1.08 (dari 1.2), kesan "alive" tanpa ribut */
+      animation: brandPulse 3.5s ease-in-out infinite;
     }
+    @keyframes brandPulse {
+      0%, 100% { transform: scale(1);    box-shadow: 0 0 10px var(--brand-cyan); }
+      50%      { transform: scale(1.08); box-shadow: 0 0 16px var(--brand-purple); }
+    }
+    /* Alias untuk elemen lama yg masih pakai 'pulse' */
     @keyframes pulse {
-      0%, 100% { transform: scale(1); box-shadow: 0 0 12px var(--brand-cyan); }
-      50%      { transform: scale(1.2); box-shadow: 0 0 24px var(--brand-purple); }
+      0%, 100% { transform: scale(1);    opacity: 1; }
+      50%      { transform: scale(1.06); opacity: 0.85; }
     }
 
     .nav-links { display: flex; gap: 6px; align-items: center; }
@@ -294,7 +301,8 @@
       background-clip: text;
       -webkit-text-fill-color: transparent;
       background-size: 200% 200%;
-      animation: gradientShift 8s ease infinite;
+      /* Shift lambat: 20s/cycle — subtle warna bergeser, tidak kejar-kejaran */
+      animation: gradientShift 20s ease infinite;
     }
     @keyframes gradientShift {
       0%, 100% { background-position: 0% 50%; }
@@ -395,35 +403,31 @@
       background-origin: border-box;
       background-clip: padding-box, border-box;
       box-shadow: var(--shadow-lg);
-      animation: floatY 6s ease-in-out infinite;
+      /* Tenang: foto statis — tidak ada gerakan mengganggu.
+         Glow halus di balik foto (::before) cukup memberi kesan hidup. */
     }
-    @keyframes floatY { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-18px); } }
+    @keyframes floatY { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 
     .hero-photo-wrap {
       position: relative;
       padding: 30px;
     }
-    .hero-photo-wrap::before,
-    .hero-photo-wrap::after {
+    .hero-photo-wrap::before {
       content: '';
       position: absolute;
       border-radius: 50%;
       pointer-events: none;
-    }
-    .hero-photo-wrap::before {
       inset: 0;
       background: var(--gradient-brand);
-      filter: blur(60px);
-      opacity: 0.3;
+      filter: blur(70px);
+      opacity: 0.22;
       z-index: 0;
-      animation: pulse 4s ease-in-out infinite;
+      /* Pulse sangat halus — 10 detik/cycle, scale 1 → 1.05 (nyaris tidak terlihat) */
+      animation: heroGlow 10s ease-in-out infinite;
     }
-    .hero-photo-wrap::after {
-      top: -20px; right: -20px;
-      width: 80px; height: 80px;
-      background: var(--gradient-brand);
-      opacity: 0.15;
-      animation: floatY 5s ease-in-out infinite reverse;
+    @keyframes heroGlow {
+      0%, 100% { opacity: 0.22; transform: scale(1); }
+      50%      { opacity: 0.32; transform: scale(1.05); }
     }
 
     .hero-stats {
@@ -1082,18 +1086,17 @@
     .floaty {
       position: absolute;
       pointer-events: none;
-      opacity: 0.08;
+      opacity: 0.06;
       z-index: 0;
-      animation: floatAround 18s ease-in-out infinite;
+      /* Gerakan sangat pelan (32s), amplitudo tiny — nyaris imperceptible */
+      animation: floatAround 32s ease-in-out infinite;
     }
-    .floaty-1 { top: 10%; left: 5%; font-size: 60px; color: var(--brand-cyan); animation-delay: 0s; }
-    .floaty-2 { top: 40%; right: 8%; font-size: 48px; color: var(--brand-purple); animation-delay: 6s; }
-    .floaty-3 { bottom: 15%; left: 10%; font-size: 54px; color: var(--brand-pink); animation-delay: 12s; }
+    .floaty-1 { top: 10%; left: 5%; font-size: 54px; color: var(--brand-cyan); animation-delay: 0s; }
+    .floaty-2 { top: 40%; right: 8%; font-size: 44px; color: var(--brand-purple); animation-delay: 10s; }
+    .floaty-3 { bottom: 15%; left: 10%; font-size: 50px; color: var(--brand-pink); animation-delay: 20s; }
     @keyframes floatAround {
       0%, 100% { transform: translate(0, 0) rotate(0deg); }
-      25%      { transform: translate(20px, -30px) rotate(8deg); }
-      50%      { transform: translate(-15px, 20px) rotate(-5deg); }
-      75%      { transform: translate(10px, 15px) rotate(3deg); }
+      50%      { transform: translate(8px, -10px) rotate(2deg); }
     }
     section { position: relative; overflow: hidden; }
 
@@ -1107,38 +1110,24 @@
       transition: background 0.3s var(--ease-smooth);
     }
 
-    /* Nav links subtle bob while idle */
-    .nav-links a { animation: navIdle 4s ease-in-out infinite; }
-    .nav-links a:nth-child(2) { animation-delay: 0.3s; }
-    .nav-links a:nth-child(3) { animation-delay: 0.6s; }
-    .nav-links a:nth-child(4) { animation-delay: 0.9s; }
-    .nav-links a:nth-child(5) { animation-delay: 1.2s; }
-    .nav-links a:nth-child(6) { animation-delay: 1.5s; }
-    .nav-links a:nth-child(7) { animation-delay: 1.8s; }
-    .nav-links a:nth-child(8) { animation-delay: 2.1s; }
-    @keyframes navIdle {
-      0%, 100% { transform: translateY(0); }
-      50%      { transform: translateY(-2px); }
-    }
-    /* Disable nav idle while scrolling so it doesn't feel noisy */
-    .topnav.scrolled .nav-links a { animation: none; }
+    /* Nav links & chips — sengaja DIAM. Hover effect sudah cukup untuk hint.
+       Animasi kontinyu di nav & chip terasa ribut di layar besar. */
 
-    /* Chip float in place */
-    .chip { animation: chipFloat 5s ease-in-out infinite; }
-    .skill-group:nth-child(1) .chip:nth-child(3n)   { animation-delay: 0.2s; }
-    .skill-group:nth-child(1) .chip:nth-child(3n+1) { animation-delay: 0.6s; }
-    .skill-group:nth-child(1) .chip:nth-child(3n+2) { animation-delay: 1.0s; }
-    @keyframes chipFloat {
-      0%, 100% { transform: translateY(0); }
-      50%      { transform: translateY(-3px); }
-    }
-
-    /* Reduced motion */
+    /* Reduced motion — respect OS setting */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         animation-duration: 0.01ms !important;
         transition-duration: 0.01ms !important;
       }
+      .floaty, .hero-photo-wrap::before, body::after { animation: none !important; }
+    }
+
+    /* Touch devices (HP/tablet) — floaty jangan animasi sama sekali agar
+       GPU budget HP dipakai untuk scroll smooth, bukan animasi dekoratif.
+       Hanya device dengan mouse presisi (desktop) yang dapat efek extra. */
+    @media (pointer: coarse) {
+      .floaty { animation: none; opacity: 0.04; }
+      .hero-photo-wrap::before { animation-duration: 15s; }
     }
 
     /* ══════════════════════════════════════════════════════════════════════
@@ -1608,7 +1597,7 @@
           </div>
         </div>
 
-        <div class="hero-visual parallax-slow">
+        <div class="hero-visual">
           <div class="hero-photo-wrap">
             <img src="about/1.jpg" alt="Riky Syah Roiland" class="hero-photo">
           </div>
@@ -2323,7 +2312,7 @@
     // Year stamp
     document.getElementById('yr').textContent = new Date().getFullYear();
 
-    // Typed effect
+    // Typed effect — tempo lebih tenang, baca-able (75ms/ketikan, jeda 2.5s)
     new Typed('.typing', {
       strings: [
         'AGVs that just work.',
@@ -2332,9 +2321,10 @@
         'IoT dashboards that teams love.',
         'Robotics systems that ship.'
       ],
-      typeSpeed: 55,
-      backSpeed: 35,
-      backDelay: 1800,
+      typeSpeed: 75,
+      backSpeed: 45,
+      backDelay: 2500,
+      startDelay: 500,
       loop: true,
       showCursor: false
     });
@@ -2445,7 +2435,9 @@
     function onScrollFrame() {
       const y = window.scrollY;
 
-      // Parallax helpers (CSS reads --scroll var)
+      // Parallax helpers (CSS reads --scroll var) — hanya kalau elemen ada
+      // Saat ini tidak ada element dengan class .parallax-* (dihapus agar tenang)
+      // tapi loop dibiarkan supaya bisa diaktifkan lagi di masa depan dengan mudah.
       parallaxEls.forEach(el => {
         const rect = el.getBoundingClientRect();
         const inView = rect.bottom > 0 && rect.top < window.innerHeight;
@@ -2459,7 +2451,6 @@
       timelines.forEach(tl => {
         const rect = tl.getBoundingClientRect();
         const total = rect.height;
-        // 0 when top of timeline hits 60% from top; 100 when bottom hits 40% from top
         const start = window.innerHeight * 0.6;
         const end   = window.innerHeight * 0.4;
         const traveled = Math.max(0, Math.min(total, start - rect.top));
@@ -2467,17 +2458,10 @@
         tl.style.setProperty('--fill', pct.toFixed(1) + '%');
       });
 
-      // Subtle hero fade as user scrolls past
-      const hero = document.querySelector('.hero');
-      if (hero) {
-        const fadeAmount = Math.min(1, y / (window.innerHeight * 0.8));
-        hero.style.opacity = (1 - fadeAmount * 0.7).toFixed(2);
-      }
+      // (Hero fade on scroll DIHAPUS — terasa aneh saat user scroll turun
+      //  tiba-tiba seluruh hero area blur/dim. Sekarang hero tetap crisp.)
 
-      // Section labels pulse based on direction
-      const dir = y > lastY ? 1 : -1;
       lastY = y;
-
       ticking = false;
     }
 
@@ -2493,22 +2477,28 @@
 
     // ══════════════════════════════════════════════════════════════════════
     // ⭐ MOUSE PARALLAX on floaty decorations — gerakan halus ikut cursor
+    // Intensitas DIKURANGI drastis (depth 2px × index, lerp 0.03)
+    // → ikon ambient bergeser nyaris tidak terlihat, tidak mengalihkan mata.
+    // Hanya aktif di desktop (mouse). Disabled untuk pointer: coarse (HP/tablet).
     // ══════════════════════════════════════════════════════════════════════
     const floatyEls = document.querySelectorAll('.floaty');
-    let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0;
-    document.addEventListener('mousemove', (e) => {
-      targetX = (e.clientX / window.innerWidth  - 0.5) * 2;
-      targetY = (e.clientY / window.innerHeight - 0.5) * 2;
-    });
-    (function updateFloaty() {
-      mouseX += (targetX - mouseX) * 0.05;
-      mouseY += (targetY - mouseY) * 0.05;
-      floatyEls.forEach((el, i) => {
-        const depth = (i + 1) * 8;
-        el.style.translate = `${mouseX * depth}px ${mouseY * depth}px`;
+    const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
+    if (hasFinePointer && floatyEls.length) {
+      let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0;
+      document.addEventListener('mousemove', (e) => {
+        targetX = (e.clientX / window.innerWidth  - 0.5) * 2;
+        targetY = (e.clientY / window.innerHeight - 0.5) * 2;
       });
-      requestAnimationFrame(updateFloaty);
-    })();
+      (function updateFloaty() {
+        mouseX += (targetX - mouseX) * 0.03;
+        mouseY += (targetY - mouseY) * 0.03;
+        floatyEls.forEach((el, i) => {
+          const depth = (i + 1) * 2;
+          el.style.translate = `${(mouseX * depth).toFixed(1)}px ${(mouseY * depth).toFixed(1)}px`;
+        });
+        requestAnimationFrame(updateFloaty);
+      })();
+    }
   </script>
 </body>
 
