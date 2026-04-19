@@ -119,14 +119,15 @@
         radial-gradient(circle at 85% 15%, rgba(6, 182, 212, 0.08) 0%, transparent 35%);
       z-index: -1;
       pointer-events: none;
-      animation: orbDrift 45s ease-in-out infinite alternate;
+      animation: orbDrift 90s ease-in-out infinite alternate;
     }
 
     @keyframes orbDrift {
-      /* Drift amplitudo dikurangi, periode lebih panjang — kesan "ambient" */
+      /* Sangat lambat (90s) + amplitudo minimal — tidak terasa bergerak
+         kecuali ditatap lama. Ambient, bukan action. */
       0%   { transform: translate(0, 0) scale(1); }
-      50%  { transform: translate(12px, -8px) scale(1.04); }
-      100% { transform: translate(-8px, 12px) scale(0.98); }
+      50%  { transform: translate(6px, -4px) scale(1.02); }
+      100% { transform: translate(-4px, 6px) scale(0.99); }
     }
 
     h1, h2, h3, h4, h5, h6 {
@@ -188,16 +189,16 @@
       background: var(--gradient-brand);
       box-shadow: 0 0 10px var(--brand-cyan);
       /* Pulse halus — 3.5s, scale max 1.08 (dari 1.2), kesan "alive" tanpa ribut */
-      animation: brandPulse 3.5s ease-in-out infinite;
+      animation: brandPulse 7s ease-in-out infinite;
     }
     @keyframes brandPulse {
       0%, 100% { transform: scale(1);    box-shadow: 0 0 10px var(--brand-cyan); }
-      50%      { transform: scale(1.08); box-shadow: 0 0 16px var(--brand-purple); }
+      50%      { transform: scale(1.04); box-shadow: 0 0 13px var(--brand-purple); }
     }
-    /* Alias untuk elemen lama yg masih pakai 'pulse' */
+    /* Alias untuk elemen lama yg masih pakai 'pulse' (eyebrow dot dll) */
     @keyframes pulse {
       0%, 100% { transform: scale(1);    opacity: 1; }
-      50%      { transform: scale(1.06); opacity: 0.85; }
+      50%      { transform: scale(1.03); opacity: 0.92; }
     }
 
     .nav-links { display: flex; gap: 6px; align-items: center; }
@@ -284,7 +285,7 @@
       border-radius: 50%;
       background: var(--brand-emerald);
       box-shadow: 0 0 12px var(--brand-emerald);
-      animation: pulse 2s infinite;
+      animation: pulse 5s ease-in-out infinite;
     }
     @keyframes slideInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -301,8 +302,8 @@
       background-clip: text;
       -webkit-text-fill-color: transparent;
       background-size: 200% 200%;
-      /* Shift lambat: 20s/cycle — subtle warna bergeser, tidak kejar-kejaran */
-      animation: gradientShift 20s ease infinite;
+      /* Shift sangat lambat: 35s/cycle — nyaris tidak terasa bergerak */
+      animation: gradientShift 35s ease-in-out infinite;
     }
     @keyframes gradientShift {
       0%, 100% { background-position: 0% 50%; }
@@ -321,9 +322,9 @@
     .hero-role .typing::after {
       content: '|';
       color: var(--brand-cyan);
-      animation: blink 1s step-start infinite;
+      animation: blink 1.6s ease-in-out infinite;
     }
-    @keyframes blink { 50% { opacity: 0; } }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
 
     .hero-desc {
       font-size: 1.05rem;
@@ -422,12 +423,12 @@
       filter: blur(70px);
       opacity: 0.22;
       z-index: 0;
-      /* Pulse sangat halus — 10 detik/cycle, scale 1 → 1.05 (nyaris tidak terlihat) */
-      animation: heroGlow 10s ease-in-out infinite;
+      /* Glow statis-like — 25s/cycle, opacity delta kecil, scale hampir 0 */
+      animation: heroGlow 25s ease-in-out infinite;
     }
     @keyframes heroGlow {
       0%, 100% { opacity: 0.22; transform: scale(1); }
-      50%      { opacity: 0.32; transform: scale(1.05); }
+      50%      { opacity: 0.28; transform: scale(1.02); }
     }
 
     .hero-stats {
@@ -466,7 +467,7 @@
       flex-direction: column;
       align-items: center;
       gap: 8px;
-      animation: floatY 2.5s ease-in-out infinite;
+      animation: floatY 4.5s ease-in-out infinite;
     }
     .scroll-hint::after {
       content: '';
@@ -946,106 +947,117 @@
       z-index: 1;
     }
 
-    /* ─── AGV (ORBIT): track, moving vehicle, LiDAR sweep, obstacle ─── */
-    .svg-agv-body { animation: agvMove 7s ease-in-out infinite; transform-origin: center; }
+    /* ══════════════════════════════════════════════════════════════════════
+       SVG ANIMATIONS — SLOW MOTION (3× lebih pelan dari v1)
+       Semua durasi dinaikkan, amplitudo dikecilkan, banyak efek kedip
+       dinon-aktif. Target: illustration "hidup" tapi tenang, bukan TV rusak.
+       ══════════════════════════════════════════════════════════════════════ */
+
+    /* ─── AGV (ORBIT) ─── */
+    .svg-agv-body { animation: agvMove 22s ease-in-out infinite; transform-origin: center; }
     @keyframes agvMove {
-      0%   { transform: translateX(-70px); }
-      50%  { transform: translateX(70px); }
-      100% { transform: translateX(-70px); }
+      0%   { transform: translateX(-50px); }
+      50%  { transform: translateX(50px); }
+      100% { transform: translateX(-50px); }
     }
     .svg-lidar-beam {
       transform-origin: 160px 92px;
-      animation: lidarSweep 2.2s ease-in-out infinite;
+      animation: lidarSweep 8s ease-in-out infinite;
       transform-box: fill-box;
     }
     @keyframes lidarSweep {
-      0%   { transform: rotate(-55deg); opacity: 0.9; }
-      50%  { transform: rotate(55deg);  opacity: 0.4; }
-      100% { transform: rotate(-55deg); opacity: 0.9; }
+      0%   { transform: rotate(-40deg); opacity: 0.7; }
+      50%  { transform: rotate(40deg);  opacity: 0.3; }
+      100% { transform: rotate(-40deg); opacity: 0.7; }
     }
-    .svg-track-dash { animation: trackFlow 1s linear infinite; }
+    .svg-track-dash { animation: trackFlow 4s linear infinite; }
     @keyframes trackFlow { to { stroke-dashoffset: -12; } }
-    .svg-obstacle  { animation: obstaclePulse 2s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+    .svg-obstacle  { animation: obstaclePulse 7s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
     @keyframes obstaclePulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50%      { transform: scale(1.4); opacity: 0.55; }
+      0%, 100% { transform: scale(1);    opacity: 1; }
+      50%      { transform: scale(1.15); opacity: 0.75; }
     }
-    .svg-blink-1 { animation: blinkFast 0.9s ease-in-out infinite; }
-    .svg-blink-2 { animation: blinkFast 0.9s ease-in-out infinite 0.3s; }
-    @keyframes blinkFast { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    /* Lampu depan/belakang AGV: tidak lagi kedip cepat — hanya breath halus */
+    .svg-blink-1 { animation: subtleBreath 4s ease-in-out infinite; }
+    .svg-blink-2 { animation: subtleBreath 4s ease-in-out infinite 1.5s; }
+    @keyframes subtleBreath { 0%, 100% { opacity: 1; } 50% { opacity: 0.65; } }
 
-    /* ─── AI × PLC (TMMIN Full-time): conveyor, camera vision, detection, PLC ─── */
-    .svg-belt-item { animation: beltMove 6s linear infinite; }
+    /* ─── AI × PLC (TMMIN Full-time) ─── */
+    .svg-belt-item { animation: beltMove 16s linear infinite; }
     @keyframes beltMove {
       0%   { transform: translateX(-40px); opacity: 0; }
       10%  { opacity: 1; }
       90%  { opacity: 1; }
       100% { transform: translateX(340px); opacity: 0; }
     }
-    .svg-roller { animation: rollerSpin 1.5s linear infinite; transform-origin: center; transform-box: fill-box; }
+    /* Roller spin: lambat, tidak bikin mata pusing */
+    .svg-roller { animation: rollerSpin 8s linear infinite; transform-origin: center; transform-box: fill-box; }
     @keyframes rollerSpin { to { transform: rotate(360deg); } }
-    .svg-detect-box { animation: beltMove 6s linear infinite; }
-    .svg-detect-box rect { animation: detectPulse 0.8s ease-in-out infinite; }
+    .svg-detect-box { animation: beltMove 16s linear infinite; }
+    .svg-detect-box rect { animation: detectPulse 4s ease-in-out infinite; }
     @keyframes detectPulse {
       0%, 100% { stroke-opacity: 1; }
-      50%      { stroke-opacity: 0.3; }
+      50%      { stroke-opacity: 0.55; }
     }
-    .svg-camera-lens { animation: lensGlow 2s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+    .svg-camera-lens { animation: lensGlow 6s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
     @keyframes lensGlow {
-      0%, 100% { transform: scale(1); fill: #22D3EE; }
-      50%      { transform: scale(1.3); fill: #F59E0B; }
+      0%, 100% { transform: scale(1);    fill: #22D3EE; }
+      50%      { transform: scale(1.12); fill: #4FC3F7; }
     }
-    .svg-plc-led-1 { animation: ledBlink 1.2s ease-in-out infinite; }
-    .svg-plc-led-2 { animation: ledBlink 1.2s ease-in-out infinite 0.3s; }
-    .svg-plc-led-3 { animation: ledBlink 1.2s ease-in-out infinite 0.6s; }
-    @keyframes ledBlink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+    /* PLC LEDs: breath lembut, tidak berkedip on/off */
+    .svg-plc-led-1 { animation: ledBreath 4.5s ease-in-out infinite; }
+    .svg-plc-led-2 { animation: ledBreath 4.5s ease-in-out infinite 1.5s; }
+    .svg-plc-led-3 { animation: ledBreath 4.5s ease-in-out infinite 3s; }
+    @keyframes ledBreath { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
     .svg-data-flow {
       stroke-dasharray: 3 3;
-      animation: dataFlow 1s linear infinite;
+      animation: dataFlow 4s linear infinite;
     }
     @keyframes dataFlow { to { stroke-dashoffset: -12; } }
+    /* Notif ping: lebih kalem, scale max 1.6 (dari 2.2), cycle 6s */
     .svg-notif-ping {
       transform-origin: center;
       transform-box: fill-box;
-      animation: notifPing 2s ease-in-out infinite;
+      animation: notifPing 6s ease-in-out infinite;
     }
     @keyframes notifPing {
-      0%, 100% { transform: scale(1); opacity: 0; }
-      10%      { transform: scale(1); opacity: 1; }
-      60%      { transform: scale(2.2); opacity: 0; }
+      0%, 100% { transform: scale(1);   opacity: 0; }
+      15%      { transform: scale(1);   opacity: 0.8; }
+      60%      { transform: scale(1.6); opacity: 0; }
     }
 
-    /* ─── Teaching / Internship: neural net, audience, data flow ─── */
-    .svg-neural-node { animation: neuralPulse 2.5s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
-    .svg-neural-node:nth-child(odd) { animation-delay: 0.6s; }
+    /* ─── Teaching / Internship ─── */
+    .svg-neural-node { animation: neuralPulse 6s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+    .svg-neural-node:nth-child(odd) { animation-delay: 2s; }
     @keyframes neuralPulse {
-      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px currentColor); }
-      50%      { transform: scale(1.4); filter: drop-shadow(0 0 8px currentColor); }
+      0%, 100% { transform: scale(1);    filter: drop-shadow(0 0 2px currentColor); }
+      50%      { transform: scale(1.15); filter: drop-shadow(0 0 6px currentColor); }
     }
     .svg-neural-conn {
       stroke-dasharray: 4 4;
-      animation: neuralFlow 2s linear infinite;
+      animation: neuralFlow 6s linear infinite;
     }
     @keyframes neuralFlow { to { stroke-dashoffset: -16; } }
     .svg-audience-head {
-      animation: headBob 3s ease-in-out infinite;
+      animation: headBob 9s ease-in-out infinite;
       transform-origin: center;
       transform-box: fill-box;
     }
-    .svg-audience-head:nth-child(2) { animation-delay: 0.2s; }
-    .svg-audience-head:nth-child(3) { animation-delay: 0.4s; }
-    .svg-audience-head:nth-child(4) { animation-delay: 0.6s; }
-    .svg-audience-head:nth-child(5) { animation-delay: 0.8s; }
-    .svg-audience-head:nth-child(6) { animation-delay: 1.0s; }
-    .svg-audience-head:nth-child(7) { animation-delay: 1.2s; }
+    /* Delay antar kepala direnggangkan */
+    .svg-audience-head:nth-child(2) { animation-delay: 0.8s; }
+    .svg-audience-head:nth-child(3) { animation-delay: 1.6s; }
+    .svg-audience-head:nth-child(4) { animation-delay: 2.4s; }
+    .svg-audience-head:nth-child(5) { animation-delay: 3.2s; }
+    .svg-audience-head:nth-child(6) { animation-delay: 4.0s; }
+    .svg-audience-head:nth-child(7) { animation-delay: 4.8s; }
     @keyframes headBob {
       0%, 100% { transform: translateY(0); }
-      50%      { transform: translateY(-4px); }
+      50%      { transform: translateY(-2px); }
     }
     .svg-chalk-line {
       stroke-dasharray: 60;
       stroke-dashoffset: 60;
-      animation: chalkWrite 3s ease-in-out infinite;
+      animation: chalkWrite 10s ease-in-out infinite;
     }
     @keyframes chalkWrite {
       0%       { stroke-dashoffset: 60; }
@@ -1086,18 +1098,15 @@
     .floaty {
       position: absolute;
       pointer-events: none;
-      opacity: 0.06;
+      opacity: 0.05;
       z-index: 0;
-      /* Gerakan sangat pelan (32s), amplitudo tiny — nyaris imperceptible */
-      animation: floatAround 32s ease-in-out infinite;
+      /* STATIS — animasi dihapus biar tidak ada gerakan samping yang mengganggu.
+         Ikon tetap sebagai dekorasi diam di background. Mouse parallax JS sudah
+         di-set sangat halus (depth 2px). */
     }
-    .floaty-1 { top: 10%; left: 5%; font-size: 54px; color: var(--brand-cyan); animation-delay: 0s; }
-    .floaty-2 { top: 40%; right: 8%; font-size: 44px; color: var(--brand-purple); animation-delay: 10s; }
-    .floaty-3 { bottom: 15%; left: 10%; font-size: 50px; color: var(--brand-pink); animation-delay: 20s; }
-    @keyframes floatAround {
-      0%, 100% { transform: translate(0, 0) rotate(0deg); }
-      50%      { transform: translate(8px, -10px) rotate(2deg); }
-    }
+    .floaty-1 { top: 10%; left: 5%; font-size: 54px; color: var(--brand-cyan); }
+    .floaty-2 { top: 40%; right: 8%; font-size: 44px; color: var(--brand-purple); }
+    .floaty-3 { bottom: 15%; left: 10%; font-size: 50px; color: var(--brand-pink); }
     section { position: relative; overflow: hidden; }
 
     /* Timeline line fills as it enters view */
@@ -2484,16 +2493,18 @@
     const floatyEls = document.querySelectorAll('.floaty');
     const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
     if (hasFinePointer && floatyEls.length) {
+      // Mouse parallax SANGAT halus — depth 1px/layer, lerp 0.02
+      // → ikon nyaris tidak terlihat bergerak, cuma kasih kesan depth.
       let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0;
       document.addEventListener('mousemove', (e) => {
         targetX = (e.clientX / window.innerWidth  - 0.5) * 2;
         targetY = (e.clientY / window.innerHeight - 0.5) * 2;
-      });
+      }, { passive: true });
       (function updateFloaty() {
-        mouseX += (targetX - mouseX) * 0.03;
-        mouseY += (targetY - mouseY) * 0.03;
+        mouseX += (targetX - mouseX) * 0.02;
+        mouseY += (targetY - mouseY) * 0.02;
         floatyEls.forEach((el, i) => {
-          const depth = (i + 1) * 2;
+          const depth = (i + 1) * 1;
           el.style.translate = `${(mouseX * depth).toFixed(1)}px ${(mouseY * depth).toFixed(1)}px`;
         });
         requestAnimationFrame(updateFloaty);
