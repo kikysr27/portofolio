@@ -19,7 +19,13 @@
   <!-- Modern typography stack -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preconnect" href="https://unpkg.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Preload hero photo supaya tampil cepat & tidak trigger layout shift -->
+  <link rel="preload" as="image" href="about/1.jpg" fetchpriority="high">
 
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
@@ -93,7 +99,14 @@
       -moz-osx-font-smoothing: grayscale;
       position: relative;
       min-height: 100vh;
+      /* FIX HOSTING: Page fade-in — body invisible sampai semua resource load.
+         Tanpa ini, di hosting (network lambat) AOS/Typed init sebelum gambar
+         loaded → elemen animate dari posisi salah → chaos. Local-host tidak
+         kena karena resource instant. */
+      opacity: 0;
+      transition: opacity 0.5s ease;
     }
+    body.page-ready { opacity: 1; }
 
     /* Subtle animated grid background */
     body::before {
@@ -1536,6 +1549,8 @@
 
 <body>
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5BB8W2X" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- JS disabled fallback: paksa body tampil (overriding opacity:0) -->
+  <noscript><style>body{opacity:1!important;}</style></noscript>
 
   <!-- ══════════════════════════════════════════════════════════════════════
        NAVIGATION
@@ -1608,7 +1623,7 @@
 
         <div class="hero-visual">
           <div class="hero-photo-wrap">
-            <img src="about/1.jpg" alt="Riky Syah Roiland" class="hero-photo">
+            <img src="about/1.jpg" alt="Riky Syah Roiland" class="hero-photo" width="340" height="340" loading="eager" decoding="sync" fetchpriority="high">
           </div>
         </div>
       </div>
@@ -2312,37 +2327,80 @@
   <!-- ══════════════════════════════════════════════════════════════════════
        SCRIPTS
        ══════════════════════════════════════════════════════════════════════ -->
-  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12" defer></script>
   <script>
-    // AOS scroll reveal
-    AOS.init({ duration: 900, once: true, offset: 60, easing: 'ease-out-cubic' });
+    // ══════════════════════════════════════════════════════════════════════
+    // 🔧 HOSTING FIX — Tunda SEMUA animasi sampai semua resource loaded.
+    // Penyebab bug: di localhost file load instan, tapi di hosting network
+    // latency bikin gambar/font loaded setelah AOS/Typed sudah init. AOS
+    // baca offsetTop elemen yang masih belum tahu tingginya → animasi miss.
+    //
+    // Solusi: jalankan semua init HANYA setelah window 'load' event (yang
+    // artinya: semua <img>, <link>, <script> selesai download). Body juga
+    // di-fade in supaya user tidak lihat konten "melompat-lompat" saat load.
+    // ══════════════════════════════════════════════════════════════════════
 
-    // Year stamp
-    document.getElementById('yr').textContent = new Date().getFullYear();
+    const bootAnimations = () => {
+      // Year stamp
+      const yrEl = document.getElementById('yr');
+      if (yrEl) yrEl.textContent = new Date().getFullYear();
 
-    // Typed effect — tempo lebih tenang, baca-able (75ms/ketikan, jeda 2.5s)
-    new Typed('.typing', {
-      strings: [
-        'AGVs that just work.',
-        'Computer Vision pipelines.',
-        'Industrial PLC automation.',
-        'IoT dashboards that teams love.',
-        'Robotics systems that ship.'
-      ],
-      typeSpeed: 75,
-      backSpeed: 45,
-      backDelay: 2500,
-      startDelay: 500,
-      loop: true,
-      showCursor: false
-    });
+      // AOS scroll reveal — aman: semua elemen sudah final position
+      if (typeof AOS !== 'undefined') {
+        AOS.init({ duration: 900, once: true, offset: 60, easing: 'ease-out-cubic' });
+      }
 
-    // Sticky nav scroll effect
+      // Typed effect — font pasti sudah loaded, tidak akan shift mid-type
+      if (typeof Typed !== 'undefined') {
+        new Typed('.typing', {
+          strings: [
+            'AGVs that just work.',
+            'Computer Vision pipelines.',
+            'Industrial PLC automation.',
+            'IoT dashboards that teams love.',
+            'Robotics systems that ship.'
+          ],
+          typeSpeed: 75,
+          backSpeed: 45,
+          backDelay: 2500,
+          startDelay: 500,
+          loop: true,
+          showCursor: false
+        });
+      }
+
+      // Fade-in body sekarang — konten tampil mulus
+      document.body.classList.add('page-ready');
+
+      // Refresh AOS posisi lagi setelah fade-in selesai (0.5s = transition)
+      setTimeout(() => {
+        if (typeof AOS !== 'undefined' && AOS.refresh) AOS.refresh();
+      }, 600);
+    };
+
+    // Fail-safe: kalau window.load tidak fire dalam 4 detik (rare edge case:
+    // resource hang), tetap jalankan supaya page tidak "stuck invisible".
+    let animationsStarted = false;
+    const startOnce = () => {
+      if (animationsStarted) return;
+      animationsStarted = true;
+      bootAnimations();
+    };
+    if (document.readyState === 'complete') {
+      // Page sudah fully loaded (misal back/forward cache)
+      startOnce();
+    } else {
+      window.addEventListener('load', startOnce);
+      // Safety timeout
+      setTimeout(startOnce, 4000);
+    }
+
+    // Sticky nav scroll effect — OK jalan langsung, tidak bergantung elemen
     const topnav = document.getElementById('topnav');
     window.addEventListener('scroll', () => {
       topnav.classList.toggle('scrolled', window.scrollY > 40);
-    });
+    }, { passive: true });
 
     // ══════════════════════════════════════════════════════════════════════
     // 🌓 THEME TOGGLE — dark ↔ light, preference di localStorage
